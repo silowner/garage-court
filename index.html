@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>80坪 ガレージ・バスケットコート設計図</title>
+<style>
+    :root {
+        /* スケール計算: 1メートル = 20px と定義 */
+        --m: 20px;
+        
+        /* 寸法定義 */
+        --garage-width: calc(15 * var(--m)); /* 幅15m (公式幅) */
+        --garage-length: calc(17.6 * var(--m)); /* 80坪(264平米)÷15m ≒ 17.6m */
+        
+        --court-3x3-length: calc(11 * var(--m)); /* 3x3公式長さ */
+        
+        /* 色定義 */
+        --color-floor-3x3: #2c3e50; /* 3x3エリア：ダークブルー */
+        --color-floor-ext: #95a5a6; /* 拡張エリア：コンクリートグレー */
+        --color-line-3x3: #f1c40f; /* 3x3ライン：イエロー */
+        --color-line-full: #ecf0f1; /* フルコートライン：ホワイト */
+        --color-paint: #e74c3c; /* ペイントエリア */
+    }
+
+    body {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background-color: #1a1a1a;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 { margin-bottom: 10px; font-size: 1.5rem; }
+    p { margin-bottom: 20px; color: #ccc; font-size: 0.9rem; }
+
+    /* ガレージ全体（80坪） */
+    .garage {
+        width: var(--garage-width);
+        height: var(--garage-length);
+        background-color: var(--color-floor-ext);
+        position: relative;
+        box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        border: 4px solid #fff;
+        overflow: hidden; /* はみ出し防止 */
+        transition: transform 0.3s ease;
+    }
+
+    /* 正規3x3エリア (15m x 11m) */
+    .zone-3x3 {
+        width: 100%;
+        height: var(--court-3x3-length);
+        background-color: var(--color-floor-3x3);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        border-top: 2px dashed var(--color-line-3x3);
+    }
+    
+    .zone-label {
+        position: absolute;
+        color: rgba(255,255,255,0.3);
+        font-weight: bold;
+        font-size: 2rem;
+        z-index: 0;
+        text-transform: uppercase;
+    }
+    .label-3x3 { bottom: 40%; left: 50%; transform: translateX(-50%); }
+    .label-ext { top: 15%; left: 50%; transform: translateX(-50%); color: rgba(0,0,0,0.2); }
+
+    /* --- パーツ共通クラス --- */
+    .hoop-assembly {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+    }
+
+    .backboard {
+        width: calc(1.8 * var(--m));
+        height: 4px;
+        background: #fff;
+    }
+
+    .rim {
+        width: calc(0.45 * var(--m));
+        height: calc(0.45 * var(--m));
+        border: 3px solid #e67e22;
+        border-radius: 50%;
+        margin-top: 2px; /* バックボードからの距離 */
+    }
+
+    /* メインゴール (3x3側) */
+    .hoop-main {
+        bottom: calc(1.2 * var(--m)); /* エンドラインから1.2m内側 */
+    }
+
+    /* サブゴール (拡張側) - 壁付け想定 */
+    .hoop-sub {
+        top: calc(0.5 * var(--m));
+        transform: translateX(-50%) rotate(180deg);
+        opacity: 0.7;
+    }
+
+    /* --- ライン描画 --- */
+    /* 3ポイントライン (円弧) */
+    .three-point-arc {
+        position: absolute;
+        bottom: calc(1.575 * var(--m)); /* フープ中心(1.575m)からの距離 */
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(13.5 * var(--m)); /* 半径6.75m x 2 */
+        height: calc(6.75 * var(--m));
+        border: 3px solid var(--color-line-3x3);
+        border-bottom: none;
+        border-radius: 1000px 1000px 0 0;
+        z-index: 5;
+    }
+    /* 3ポイントライン (直線部) - 本来は0.9mスペースが必要だが簡易表現 */
+
+    /* ペイントエリア (制限区域) */
+    .paint-area {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(4.9 * var(--m));
+        height: calc(5.8 * var(--m));
+        background-color: rgba(231, 76, 60, 0.2);
+        border: 2px solid var(--color-line-3x3);
+        z-index: 4;
+    }
+
+    /* フリースローサークル */
+    .free-throw-circle {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(3.6 * var(--m));
+        height: calc(3.6 * var(--m));
+        border: 2px solid var(--color-line-3x3);
+        border-radius: 50%;
+        z-index: 5;
+    }
+
+    /* メイン側の配置 */
+    .paint-main { bottom: 0; border-bottom: none; }
+    .circle-main { bottom: calc(5.8 * var(--m) - 1.8 * var(--m)); } /* 5.8mの位置が中心 */
+
+    /* サブ側の配置 (簡易版) */
+    .paint-sub {
+        top: 0; 
+        height: calc(5.8 * var(--m));
+        border-color: var(--color-line-full);
+        background-color: rgba(255, 255, 255, 0.1);
+        border-top: none;
+    }
+    .circle-sub {
+        top: calc(5.8 * var(--m) - 1.8 * var(--m));
+        border-color: var(--color-line-full);
+        border-style: dashed;
+    }
+
+    /* センターサークル (全体の真ん中に配置) */
+    .center-circle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(3.6 * var(--m));
+        height: calc(3.6 * var(--m));
+        border: 2px solid var(--color-line-full);
+        border-radius: 50%;
+        opacity: 0.5;
+    }
+    
+    .center-line {
+        position: absolute;
+        top: 50%;
+        width: 100%;
+        height: 2px;
+        background-color: var(--color-line-full);
+        opacity: 0.5;
+    }
+
+    /* ノーチャージエリア */
+    .no-charge-arc {
+        position: absolute;
+        width: calc(2.5 * var(--m));
+        height: calc(1.25 * var(--m));
+        border: 2px solid var(--color-line-3x3);
+        border-bottom: none;
+        border-radius: 100px 100px 0 0;
+        z-index: 5;
+    }
+    .nc-main { bottom: calc(1.575 * var(--m)); left: 50%; transform: translateX(-50%); }
+
+    /* 寸法線ツールチップ */
+    .dim {
+        position: absolute;
+        font-size: 0.7rem;
+        color: white;
+        background: #000;
+        padding: 2px 5px;
+        border-radius: 4px;
+    }
+    .dim-w { bottom: -25px; left: 50%; transform: translateX(-50%); width: 100%; text-align: center; border-top: 1px solid #fff;}
+    .dim-h { right: -40px; top: 50%; transform: translateY(-50%) rotate(90deg); width: var(--garage-length); text-align: center; border-top: 1px solid #fff;}
+    
+    .info-panel {
+        background: #333;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        max-width: 600px;
+    }
+    .legend-item { display: flex; align-items: center; margin-bottom: 5px; font-size: 0.85rem; }
+    .box { width: 15px; height: 15px; margin-right: 10px; border: 1px solid #fff; }
+</style>
+</head>
+<body>
+
+    <h1>80坪ガレージコート構想図</h1>
+    <p>青いエリアが「正規3x3」、全体を使うと「ミニ・オールコート」</p>
+
+    <div class="garage">
+        <div class="zone-3x3">
+            <div class="zone-label label-3x3">Official 3x3</div>
+            
+            <div class="hoop-assembly hoop-main">
+                <div class="rim"></div>
+                <div class="backboard"></div>
+            </div>
+
+            <div class="paint-area paint-main"></div>
+            <div class="free-throw-circle circle-main"></div>
+            <div class="three-point-arc"></div>
+            <div class="no-charge-arc nc-main"></div>
+        </div>
+
+        <div class="zone-label label-ext">Extension Area</div>
+
+        <div class="hoop-assembly hoop-sub">
+            <div class="rim"></div>
+            <div class="backboard"></div>
+        </div>
+        
+        <div class="paint-area paint-sub"></div>
+        <div class="free-throw-circle circle-sub"></div>
+
+        <div class="center-line"></div>
+        <div class="center-circle"></div>
+
+        <div class="dim dim-w">幅 15.0m (正規サイズ)</div>
+        <div class="dim dim-h">全長 約17.6m (80坪)</div>
+    </div>
+
+    <div class="info-panel">
+        <div class="legend-item"><div class="box" style="background:var(--color-floor-3x3)"></div>正規3x3エリア (11m x 15m)</div>
+        <div class="legend-item"><div class="box" style="background:var(--color-floor-ext)"></div>拡張スペース (約6.6m x 15m)</div>
+        <div class="legend-item"><div class="box" style="border-color:var(--color-line-3x3); background:none;"></div>公式ライン (3pt, Paint)</div>
+        <div class="legend-item"><div class="box" style="border-color:var(--color-line-full); background:none; border-style:dashed;"></div>簡易オールコートライン</div>
+        <p style="margin-top:10px; margin-bottom:0; font-size:0.8rem;">
+            ※80坪(約264㎡)を15m幅で計算すると、奥行きは約17.6mになります。<br>
+            ※正規のオールコート(28m)に対して約6割の長さになりますが、4対4やシューティングゲームには十分な広さです。
+        </p>
+    </div>
+
+</body>
+</html>
